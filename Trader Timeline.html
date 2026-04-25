@@ -1,0 +1,189 @@
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .app { font-family: var(--font-sans); padding: 2rem 1rem; transition: background 0.3s, color 0.3s; }
+
+  .theme-bar { display: flex; gap: 6px; justify-content: center; margin-bottom: 2rem; background: var(--t-pill-bg); border-radius: 99px; padding: 4px; width: fit-content; margin-left: auto; margin-right: auto; }
+  .theme-btn { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; padding: 6px 14px; border-radius: 99px; border: none; cursor: pointer; background: transparent; color: var(--t-pill-text); transition: all 0.2s; }
+  .theme-btn.active { background: var(--t-pill-active-bg); color: var(--t-pill-active-text); }
+
+  .header { text-align: center; margin-bottom: 2rem; }
+  .brand { font-size: 11px; letter-spacing: 0.15em; color: var(--t-muted); text-transform: uppercase; margin-bottom: 0.4rem; }
+  .title { font-size: 22px; font-weight: 500; color: var(--t-text); margin-bottom: 0.2rem; }
+  .subtitle { font-size: 13px; color: var(--t-muted); }
+
+  .progress-wrap { margin: 1.25rem 0 0.4rem; background: var(--t-progress-track); border-radius: 99px; height: 5px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--t-accent); border-radius: 99px; transition: width 0.4s ease; }
+  .progress-label { font-size: 12px; color: var(--t-muted); text-align: right; margin-bottom: 1.75rem; }
+
+  .connector { width: 1px; height: 14px; background: var(--t-border); margin: 0 0 0 22px; }
+
+  .card { background: var(--t-card-bg); border: 1px solid var(--t-border); border-radius: 12px; padding: 1.1rem 1.25rem; transition: border-color 0.2s, background 0.2s; }
+  .card:not(.locked) { cursor: pointer; }
+  .card:not(.locked):hover { border-color: var(--t-border-hover); }
+  .card.done { border-color: var(--t-accent); background: var(--t-done-bg); }
+  .card.locked { opacity: 0.42; cursor: default; }
+
+  .card-header { display: flex; align-items: center; gap: 12px; }
+  .circle { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--t-border-hover); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+  .card:not(.locked) .circle { cursor: pointer; }
+  .card.done .circle { background: var(--t-accent); border-color: var(--t-accent); }
+  .check { display: none; }
+  .card.done .check { display: block; }
+  .lock-icon { display: none; }
+  .card.locked .lock-icon { display: block; }
+  .card.locked .check { display: none; }
+
+  .meta { flex: 1; }
+  .lvl-num { font-size: 10px; letter-spacing: 0.12em; color: var(--t-muted); text-transform: uppercase; }
+  .lvl-name { font-size: 15px; font-weight: 500; color: var(--t-text); }
+  .card.done .lvl-num, .card.done .lvl-name { color: var(--t-accent-dark); }
+
+  .chevron { width: 15px; height: 15px; color: var(--t-muted); transition: transform 0.2s; flex-shrink: 0; }
+  .card.open .chevron { transform: rotate(180deg); }
+  .card.locked .chevron { display: none; }
+
+  .desc { font-size: 13px; color: var(--t-muted); line-height: 1.65; margin-top: 0.85rem; display: none; }
+  .card.done .desc { color: var(--t-accent-dark); opacity: 0.8; }
+  .card.open .desc { display: block; }
+
+  .cert-link { display: inline-block; margin-top: 0.85rem; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-accent); text-decoration: none; border: 1px solid var(--t-accent); border-radius: 99px; padding: 5px 16px; transition: background 0.2s, color 0.2s; }
+  .cert-link:hover { background: var(--t-accent); color: var(--t-card-bg); }
+
+  .congrats { text-align: center; margin-top: 1.25rem; padding: 1rem; background: var(--t-done-bg); border: 1px solid var(--t-accent); border-radius: 12px; display: none; }
+  .congrats.show { display: block; }
+  .congrats p { font-size: 13px; color: var(--t-accent-dark); }
+
+  .reset { display: block; margin: 1.25rem auto 0; font-size: 12px; color: var(--t-muted); background: none; border: 1px solid var(--t-border); border-radius: 99px; padding: 5px 16px; cursor: pointer; }
+  .reset:hover { color: var(--t-text); }
+
+  .theme-white { --t-text:#111; --t-muted:#888; --t-card-bg:#fff; --t-border:#e5e5e5; --t-border-hover:#bbb; --t-accent:#111; --t-accent-dark:#111; --t-done-bg:#f5f5f5; --t-progress-track:#eee; --t-pill-bg:#f0f0f0; --t-pill-text:#888; --t-pill-active-bg:#111; --t-pill-active-text:#fff; background:#fafafa; }
+  .theme-grey { --t-text:#222; --t-muted:#888; --t-card-bg:#f5f5f5; --t-border:#ddd; --t-border-hover:#aaa; --t-accent:#444; --t-accent-dark:#222; --t-done-bg:#e8e8e8; --t-progress-track:#ddd; --t-pill-bg:#e5e5e5; --t-pill-text:#777; --t-pill-active-bg:#333; --t-pill-active-text:#fff; background:#ebebeb; }
+  .theme-tan { --t-text:#3b2f1e; --t-muted:#a08060; --t-card-bg:#fdf6ee; --t-border:#e8d8c4; --t-border-hover:#c8a880; --t-accent:#8B5E3C; --t-accent-dark:#5c3d20; --t-done-bg:#f5e8d8; --t-progress-track:#e8d8c4; --t-pill-bg:#ede0ce; --t-pill-text:#a08060; --t-pill-active-bg:#8B5E3C; --t-pill-active-text:#fff; background:#f5ece0; }
+  .theme-pink { --t-text:#4a1830; --t-muted:#c47090; --t-card-bg:#fff5f8; --t-border:#f0c8d8; --t-border-hover:#e094b4; --t-accent:#c0446c; --t-accent-dark:#7a1a40; --t-done-bg:#fde8f0; --t-progress-track:#f0c8d8; --t-pill-bg:#fde0ea; --t-pill-text:#c47090; --t-pill-active-bg:#c0446c; --t-pill-active-text:#fff; background:#fdf0f5; }
+  .theme-dark { --t-text:#f0f0f0; --t-muted:#666; --t-card-bg:#1a1a1a; --t-border:#2e2e2e; --t-border-hover:#444; --t-accent:#1D9E75; --t-accent-dark:#5DCAA5; --t-done-bg:#0d2a1f; --t-progress-track:#2a2a2a; --t-pill-bg:#222; --t-pill-text:#666; --t-pill-active-bg:#1D9E75; --t-pill-active-text:#fff; background:#111; }
+</style>
+
+<div class="app theme-white" id="app">
+  <div class="theme-bar" id="themeBar">
+    <button class="theme-btn active" onclick="setTheme('white', this)">WHITE</button>
+    <button class="theme-btn" onclick="setTheme('grey', this)">GREY</button>
+    <button class="theme-btn" onclick="setTheme('tan', this)">TAN</button>
+    <button class="theme-btn" onclick="setTheme('pink', this)">PINK</button>
+    <button class="theme-btn" onclick="setTheme('dark', this)">DARK</button>
+  </div>
+
+  <div class="header">
+    <div class="brand">@therealeliwolf · pointstocommaz.com</div>
+    <div class="title">Commaz Crew Trader Timeline</div>
+    <div class="subtitle">Your roadmap from beginner to successful trader</div>
+    <div class="progress-wrap"><div class="progress-fill" id="fill" style="width:0%"></div></div>
+    <div class="progress-label" id="plabel">0 of 10 complete</div>
+  </div>
+
+  <div id="levels"></div>
+  <div class="congrats" id="congrats"><p>You've completed the roadmap. Welcome to the other side. Keep going. 🐺</p></div>
+  <button class="reset" onclick="resetAll()">Reset progress</button>
+</div>
+
+<script>
+const levels = [
+  { n:1, name:"Newbie", desc:"Brand new to trading. You're just discovering that this world exists. Learning what the market is, why people trade, and what's actually possible. No experience required — just curiosity." },
+  { n:2, name:"Discovery", desc:"Exploring the different markets and instruments available — stocks, options, futures, forex, crypto. Starting to understand the difference between them and getting a feel for what excites you most." },
+  { n:3, name:"Methodology selection", desc:"One of the most important decisions you'll make. Committing to a specific approach to the market instead of jumping between strategies. The goal is to go deep on one thing rather than wide on everything." },
+  { n:4, name:"Foundation building", desc:"Deep diving into your chosen methodology. Learning the language, the concepts, and the logic behind why price moves the way it does. This stage takes patience — the foundation you build here is everything." },
+  { n:5, name:"Strategy development", desc:"Identifying a specific strategy within your methodology and building a repeatable trading model around it. You're not just studying anymore — you're starting to build something that belongs to you." },
+  { n:6, name:"Backtesting", desc:"Applying your model to historical data to test its validity before risking anything real. This is where you find out if what you think works actually works — and where you refine it until it does." },
+  { n:7, name:"Forward testing — stage 1", desc:"Reading real-time or delayed charts using your model. No trades yet — just pure observation, journaling, and chart annotation. Building the habit of seeing before acting." },
+  { n:8, name:"Forward testing — stage 2", desc:"Executing trades in a demo or practice account. Journaling every trade to refine your execution, timing, and risk management in a simulated environment with zero financial pressure." },
+  { n:9, name:"Evaluation", desc:"Taking your model into a real testing environment — whether that's a prop firm evaluation, a small personal account, or a paper trading challenge with real accountability. Theoretical knowledge meets live market conditions for the first time." },
+  { n:10, name:"Successful trader", desc:"You've proven your model works. Now it's about consistency, discipline, and growth. Whether you're trading a funded account, a personal brokerage account, or building toward full-time trading — you are paying yourself as a trader. Keep refining, keep managing risk, and keep scaling on your own terms." }
+];
+
+const CERT_URL = "https://pointstocommaz.github.io/Trader-Timeline-Certificate/";
+
+let done = {}, open = {};
+try { done = JSON.parse(localStorage.getItem('commaz_v3') || '{}'); } catch(e){}
+
+function save(){ try{ localStorage.setItem('commaz_v3', JSON.stringify(done)); }catch(e){} }
+
+function setTheme(t, btn) {
+  document.getElementById('app').className = 'app theme-' + t;
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function isUnlocked(i) {
+  if (i === 0) return true;
+  return !!done[i - 1];
+}
+
+function toggleDone(i, e) {
+  e.stopPropagation();
+  if (!isUnlocked(i)) return;
+  if (done[i]) {
+    // Unchecking: also uncheck all subsequent levels
+    for (let j = i; j < levels.length; j++) {
+      done[j] = false;
+      open[j] = false;
+    }
+  } else {
+    done[i] = true;
+  }
+  save(); render();
+}
+
+function toggleOpen(i) {
+  if (!isUnlocked(i)) return;
+  open[i] = !open[i];
+  render();
+}
+
+function resetAll() { done={}; open={}; save(); render(); }
+
+function render() {
+  const el = document.getElementById('levels');
+  el.innerHTML = '';
+  const count = Object.values(done).filter(Boolean).length;
+  document.getElementById('fill').style.width = Math.round(count/levels.length*100)+'%';
+  document.getElementById('plabel').textContent = count + ' of ' + levels.length + ' complete';
+  document.getElementById('congrats').classList.toggle('show', count === levels.length);
+
+  levels.forEach((lvl, i) => {
+    if(i > 0) { const c = document.createElement('div'); c.className='connector'; el.appendChild(c); }
+    const d = !!done[i], o = !!open[i], locked = !isUnlocked(i);
+    const card = document.createElement('div');
+    card.className = 'card' + (d?' done':'') + (o?' open':'') + (locked?' locked':'');
+    if (!locked) card.onclick = () => toggleOpen(i);
+
+    const isFinalDone = (i === levels.length - 1) && d;
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="circle" onclick="${locked ? '' : 'toggleDone('+i+', event)'}">
+          <svg class="check" width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4l3 3 5-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg class="lock-icon" width="10" height="12" viewBox="0 0 10 12" fill="none">
+            <rect x="1" y="5" width="8" height="7" rx="1.5" fill="currentColor" opacity="0.4"/>
+            <path d="M3 5V3.5a2 2 0 014 0V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+          </svg>
+        </div>
+        <div class="meta">
+          <div class="lvl-num">Level ${lvl.n}</div>
+          <div class="lvl-name">${lvl.name}</div>
+        </div>
+        <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 6l4 4 4-4"/>
+        </svg>
+      </div>
+      <div class="desc">
+        ${lvl.desc}
+        ${isFinalDone ? `<br><br><a class="cert-link" href="${CERT_URL}" target="_blank">Claim your certificate &rarr;</a>` : ''}
+      </div>
+    `;
+    el.appendChild(card);
+  });
+}
+
+render();
+</script>
